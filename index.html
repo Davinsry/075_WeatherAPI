@@ -11,33 +11,18 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            /* BARU: Mengatur layout agar semua konten terpusat di tengah layar */
             display: flex;
-            justify-content: center; /* Pusatkan secara horizontal */
-            align-items: center;   /* Pusatkan secara vertikal */
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
             color: #fff;
             overflow: hidden;
             
-            /* BARU: Fallback background jika video gagal dimuat */
-            background-image: url('https://images.unsplash.com/photo-1488866022504-f2584929ca5f?w=800');
+            /* BARU: Transisi untuk perubahan gradasi yang mulus */
+            transition: background 1.5s ease-in-out;
             background-size: cover;
             background-position: center;
-            transition: background-image 1.5s ease-in-out;
-        }
-        
-        #bg-video {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -1;
-            transition: opacity 1.5s ease-in-out;
-            object-fit: cover;
         }
         
         .overlay {
@@ -46,14 +31,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            /* Nilai alpha dikurangi agar gradasi lebih terlihat */
+            background-color: rgba(0, 0, 0, 0.3); 
             z-index: 1;
         }
 
         .info-panel {
             position: relative;
             z-index: 2;
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -126,7 +112,6 @@
     </style>
 </head>
 <body>
-    <video autoplay muted loop id="bg-video"></video>
     <div class="overlay"></div>
     
     <div class="info-panel">
@@ -160,19 +145,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     
     <script>
-        function getBackgroundVideo(conditionText, isDay) {
+        // --- BARU: Fungsi untuk memilih GRADASI WARNA background ---
+        function getBackgroundGradient(conditionText, isDay) {
             const condition = conditionText.toLowerCase();
-            if (isDay) {
-                if (condition.includes('sunny') || condition.includes('clear')) return 'https://assets.mixkit.co/videos/preview/mixkit-sun-drenched-meadow-34442-large.mp4';
-                if (condition.includes('cloudy') || condition.includes('overcast')) return 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4';
-                if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thundery')) return 'https://assets.mixkit.co/videos/preview/mixkit-heavy-rain-on-a-window-2401-large.mp4';
-                if (condition.includes('mist') || condition.includes('fog')) return 'https://assets.mixkit.co/videos/preview/mixkit-countryside-road-in-the-fog-32765-large.mp4';
-                return 'https://assets.mixkit.co/videos/preview/mixkit-sun-drenched-meadow-34442-large.mp4';
-            } else {
-                if (condition.includes('clear')) return 'https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-forest-813-large.mp4';
-                if (condition.includes('cloudy') || condition.includes('overcast')) return 'https://assets.mixkit.co/videos/preview/mixkit-time-lapse-of-a-sky-full-of-clouds-at-night-42250-large.mp4';
-                if (condition.includes('rain') || condition.includes('drizzle')) return 'https://assets.mixkit.co/videos/preview/mixkit-rain-falling-on-a-roof-at-night-48350-large.mp4';
-                return 'https://assets.mixkit.co/videos/preview/mixkit-starry-night-sky-over-a-forest-813-large.mp4';
+            if (isDay) { // Siang Hari
+                if (condition.includes('sunny') || condition.includes('clear')) {
+                    // Gradasi biru langit ke putih seperti permintaan Anda
+                    return 'linear-gradient(to top, #87CEEB, #FFFFFF)';
+                } else if (condition.includes('cloudy') || condition.includes('overcast')) {
+                    // Gradasi abu-abu kebiruan
+                    return 'linear-gradient(to top, #B0C4DE, #778899)';
+                } else if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thundery')) {
+                    // Gradasi abu-abu gelap
+                    return 'linear-gradient(to top, #6c7a89, #475B74)';
+                } else {
+                    return 'linear-gradient(to top, #87CEEB, #FFFFFF)'; // Default siang
+                }
+            } else { // Malam Hari
+                if (condition.includes('clear')) {
+                    // Gradasi biru tua ke hitam, seperti langit malam
+                    return 'linear-gradient(to top, #0F2027, #203A43, #2C5364)';
+                } else if (condition.includes('cloudy') || condition.includes('overcast')) {
+                    // Gradasi malam berawan
+                    return 'linear-gradient(to top, #3E5151, #152525)';
+                } else if (condition.includes('rain') || condition.includes('drizzle')) {
+                    // Gradasi malam hujan
+                    return 'linear-gradient(to top, #2c3e50, #16222A)';
+                } else {
+                    return 'linear-gradient(to top, #0F2027, #2C5364)'; // Default malam
+                }
             }
         }
 
@@ -196,16 +197,10 @@
                     $('#val-lat').text(location.lat);
                     $('#val-lon').text(location.lon);
 
-                    const videoUrl = getBackgroundVideo(current.condition.text, current.is_day);
-                    const videoElement = $('#bg-video');
-                    if (videoElement.attr('src') !== videoUrl) {
-                        videoElement.css('opacity', 0);
-                        setTimeout(() => {
-                           videoElement.attr('src', videoUrl);
-                           videoElement.get(0).load();
-                           videoElement.css('opacity', 1);
-                        }, 1000);
-                    }
+                    // --- BARU: Menerapkan background gradasi ---
+                    const backgroundCss = getBackgroundGradient(current.condition.text, current.is_day);
+                    $('body').css('background', backgroundCss);
+
                 },
                 error: function(error) {
                     $('.info-grid .value').text('-');
@@ -227,7 +222,7 @@
             }
         });
 
-        getWeather('Kasihan'); // Mengambil lokasi default
+        getWeather('Kasihan');
     </script>
 </body>
 </html>
