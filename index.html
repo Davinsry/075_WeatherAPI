@@ -11,13 +11,20 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            /* BARU: Mengatur layout agar semua konten terpusat di tengah layar */
             display: flex;
-            align-items: center; /* Vertically center the panel */
+            justify-content: center; /* Pusatkan secara horizontal */
+            align-items: center;   /* Pusatkan secara vertikal */
             height: 100vh;
             margin: 0;
-            padding: 0 40px; /* Memberi jarak dari tepi kiri */
             color: #fff;
             overflow: hidden;
+            
+            /* BARU: Fallback background jika video gagal dimuat */
+            background-image: url('https://images.unsplash.com/photo-1488866022504-f2584929ca5f?w=800');
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out;
         }
         
         #bg-video {
@@ -39,11 +46,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Overlay sedikit lebih gelap */
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 1;
         }
 
-        /* --- BARU: Style untuk Panel Info Kiri --- */
         .info-panel {
             position: relative;
             z-index: 2;
@@ -62,6 +68,7 @@
             font-weight: 500;
             border-bottom: 1px solid rgba(255, 255, 255, 0.3);
             padding-bottom: 10px;
+            text-align: center;
         }
 
         .search-box {
@@ -102,11 +109,10 @@
             background: #3c8ce7;
         }
 
-        /* --- BARU: Style untuk baris-baris info --- */
         .info-grid {
             display: grid;
-            grid-template-columns: 120px 1fr; /* Kolom pertama untuk label, kedua untuk data */
-            gap: 12px; /* Jarak antar baris */
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
         }
 
         .info-grid .label {
@@ -134,25 +140,18 @@
         <div class="info-grid">
             <span class="label">Negara:</span>
             <span class="value" id="val-negara">-</span>
-
             <span class="label">Provinsi:</span>
             <span class="value" id="val-provinsi">-</span>
-
             <span class="label">Kecamatan:</span>
             <span class="value" id="val-kecamatan">-</span>
-
             <span class="label">Suhu:</span>
             <span class="value" id="val-suhu">-</span>
-
             <span class="label">Kelembaban:</span>
             <span class="value" id="val-kelembaban">-</span>
-
             <span class="label">Lokasi:</span>
             <span class="value" id="val-lokasi">-</span>
-
             <span class="label">Latitude:</span>
             <span class="value" id="val-lat">-</span>
-
             <span class="label">Longitude:</span>
             <span class="value" id="val-lon">-</span>
         </div>
@@ -181,8 +180,6 @@
 
         function getWeather(city) {
             const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&aqi=no`;
-            
-            // Mengosongkan data lama saat pencarian baru
             $('.info-grid .value').text('Mencari...');
 
             $.ajax({
@@ -190,8 +187,6 @@
                 method: 'GET',
                 success: function(data) {
                     const { location, current } = data;
-                    
-                    // --- BARU: Mengisi data ke elemen-elemen baru ---
                     $('#val-negara').text(location.country);
                     $('#val-provinsi').text(location.region);
                     $('#val-kecamatan').text(location.name);
@@ -213,7 +208,7 @@
                     }
                 },
                 error: function(error) {
-                    $('.info-grid .value').text('-'); // Kosongkan semua jika error
+                    $('.info-grid .value').text('-');
                     $('#val-kecamatan').text(`Lokasi "${city}" tidak ditemukan.`);
                     console.log(error);
                 }
@@ -232,7 +227,7 @@
             }
         });
 
-        getWeather('Yogyakarta');
+        getWeather('Kasihan'); // Mengambil lokasi default
     </script>
 </body>
 </html>
